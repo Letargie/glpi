@@ -1145,7 +1145,7 @@ class NotificationTarget extends CommonDBChild {
             case 'Notification' :
                if ($_SESSION['glpishow_count_on_tabs']) {
                   $nb = countElementsInTable($this->getTable(),
-                                             "notifications_id = '".$item->getID()."'");
+                                             ['notifications_id' => $item->getID() ]);
                }
                return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), $nb);
          }

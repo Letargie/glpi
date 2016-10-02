@@ -596,7 +596,7 @@ class CommonDBTM extends CommonGLPI {
 
          if ($DB->numrows($result)) {
             while ($data=$DB->fetch_assoc($result)) {
-               $cnt = countElementsInTable('glpi_items_tickets', "`tickets_id`='".$data['tickets_id']."'");
+               $cnt = countElementsInTable('glpi_items_tickets', ['tickets_id' => $data['tickets_id'] ]);
                $job->getFromDB($data['tickets_id']);
                if ($cnt == 1) {
                   if ($CFG_GLPI["keep_tickets_on_delete"] == 1) {
@@ -1832,7 +1832,7 @@ class CommonDBTM extends CommonGLPI {
          $f = getForeignKeyFieldForTable($this->getTable());
 
          if (countElementsInTable($this->getTable(),
-                                  "`$f`='$ID' AND entities_id NOT IN $entities") > 0) {
+                                  [ $f => $ID, 'not' => [ 'entities_id' => $entities ]]) > 0) {
             return false;
          }
       }
@@ -1850,16 +1850,14 @@ class CommonDBTM extends CommonGLPI {
                   if (is_array($field)) {
                      foreach ($field as $f) {
                         if (countElementsInTable($tablename,
-                                                 "`$f`='$ID'
-                                                   AND entities_id NOT IN $entities") > 0) {
+                                                 [ $f => $ID, 'not' => [ 'entities_id' => $entities ]]) > 0) {
                            return false;
                         }
                      }
 
                   } else {
                      if (countElementsInTable($tablename,
-                                              "`$field`='$ID'
-                                                AND entities_id NOT IN $entities") > 0) {
+                                              [ $field => $ID, 'not' => [ 'entities_id' => $entities ]]) > 0) {
                         return false;
                      }
                   }
@@ -1886,13 +1884,10 @@ class CommonDBTM extends CommonGLPI {
 
                               if ($item->isEntityAssign()) {
                                  if (countElementsInTable(array($tablename, $itemtable),
-                                                          "`$tablename`.`$field`='$ID'
-                                                           AND `$tablename`.`$typefield`
-                                                                  ='$itemtype'
-                                                           AND `$tablename`.`$devfield`
-                                                                  =`$itemtable`.id
-                                                           AND `$itemtable`.`entities_id`
-                                                                  NOT IN $entities") > '0') {
+                                                          [ $tablename.$field => $ID,
+                                                            $tablename.$typefield => $itemtype,
+                                                            $tablename.$devfield => $itemtable.'id',
+                                                            'not' => [$itemtable.'entities_id' => $entities ]]) > '0') {
                                     return false;
                                  }
                               }
@@ -1910,11 +1905,9 @@ class CommonDBTM extends CommonGLPI {
                            if (is_array($rel[$tablename])) {
                               foreach ($rel[$tablename] as $otherfield) {
                                  if (countElementsInTable(array($tablename, $othertable),
-                                                          "`$tablename`.`$field`='$ID'
-                                                           AND `$tablename`.`$otherfield`
-                                                                  =`$othertable`.id
-                                                           AND `$othertable`.`entities_id`
-                                                                  NOT IN $entities") > '0') {
+                                                          [ $tablename.$field => $ID,
+                                                            $tablename.$otherfield => $othertable.'id',
+                                                            'not' => [$othertable.`entities_id` => $entities ]]) > '0') {
                                     return false;
                                  }
                               }
@@ -1922,11 +1915,9 @@ class CommonDBTM extends CommonGLPI {
                            } else {
                               $otherfield = $rel[$tablename];
                               if (countElementsInTable(array($tablename, $othertable),
-                                                       "`$tablename`.`$field`=$ID
-                                                        AND `$tablename`.`$otherfield`
-                                                               =`$othertable`.id
-                                                        AND `$othertable`.`entities_id`
-                                                               NOT IN $entities") > '0') {
+                                                       [ $tablename.$field => $ID,
+                                                         $tablename.$otherfield => $othertable.'id',
+                                                         'not' => [ $othertable.`entities_id` => $entities ]]) > '0') {
                                  return false;
                               }
                            }

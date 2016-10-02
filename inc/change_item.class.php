@@ -268,7 +268,7 @@ class Change_Item extends CommonDBRelation{
             case 'Change' :
                if ($_SESSION['glpishow_count_on_tabs']) {
                   $nb = countElementsInTable('glpi_changes_items',
-                                             "`changes_id` = '".$item->getID()."'");
+                                             ['changes_id' => $item->getID() ]);
                }
                return self::createTabEntry(_n('Item', 'Items', Session::getPluralNumber()), $nb);
 
@@ -298,8 +298,8 @@ class Change_Item extends CommonDBRelation{
                   if ($_SESSION['glpishow_count_on_tabs']) {
                      // Direct one
                      $nb = countElementsInTable('glpi_changes_items',
-                                                " `itemtype` = '".$item->getType()."'
-                                                   AND `items_id` = '".$item->getID()."'");
+                                                   ['itemtype' => $item->getType(),
+                                                    'items_id' => $item->getID() ]);
                      // Linked items
                      $linkeditems = $item->getLinkedItems();
 
@@ -307,8 +307,8 @@ class Change_Item extends CommonDBRelation{
                         foreach ($linkeditems as $type => $tab) {
                            foreach ($tab as $ID) {
                               $nb += countElementsInTable('glpi_changes_items',
-                                                          " `itemtype` = '$type'
-                                                            AND `items_id` = '$ID'");
+                                                          ['itemtype' => $type,
+                                                           'items_id' => $ID ]);
                            }
                         }
                      }

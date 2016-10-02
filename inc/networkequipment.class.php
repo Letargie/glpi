@@ -230,8 +230,8 @@ class NetworkEquipment extends CommonDBTM {
                if ($item = getItemForItemtype($data["itemtype"])) {
                    // For each itemtype which are entity dependant
                    if ($item->isEntityAssign()) {
-                      if (countElementsInTable($itemtable, "id IN (".$data["ids"].")
-                                               AND entities_id NOT IN $entities") > 0) {
+                      if (countElementsInTable($itemtable, ['id' IN => $data["ids"],
+                                               'not' => ['entities_id' => $entities ]]) > 0) {
                          return false;
                       }
                    }
