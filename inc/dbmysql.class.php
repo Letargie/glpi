@@ -762,6 +762,9 @@ class DBmysqlIterator  implements Iterator {
 
       $this->conn = $dbconnexion;
       if (is_string($table) && strpos($table, " ")) {
+//          if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
+//             trigger_error("Deprecated usage of SQL in DB/request (full query)", E_USER_DEPRECATED);
+//          }
          $this->sql = $table;
       } else {
          // Check field, orderby, limit, start in criterias
@@ -771,6 +774,7 @@ class DBmysqlIterator  implements Iterator {
          $start    = 0;
          $distinct = '';
          $where    = '';
+         $count    = '';
          if (is_array($crit) && count($crit)) {
             foreach ($crit as $key => $val) {
                if ($key === "FIELDS") {
@@ -779,6 +783,9 @@ class DBmysqlIterator  implements Iterator {
                } else if ($key === "DISTINCT FIELDS") {
                   $field = $val;
                   $distinct = "DISTINCT";
+                  unset($crit[$key]);
+               } else if ($key === "COUNT") {
+                  $count = $val;
                   unset($crit[$key]);
                } else if ($key === "ORDER") {
                   $orderby = $val;
@@ -797,7 +804,9 @@ class DBmysqlIterator  implements Iterator {
          }
 
          // SELECT field list
-         if (is_array($field)) {
+         if ($count) {
+            $this->sql = "SELECT COUNT(*) AS $count";
+         } else if (is_array($field)) {
             $this->sql = "";
             foreach ($field as $t => $f) {
                if (is_numeric($t)) {
@@ -815,7 +824,7 @@ class DBmysqlIterator  implements Iterator {
          } else if (empty($field)) {
             $this->sql = "SELECT *";
          } else {
-            $this->sql = "SELECT $distinct `$field`";
+            $this->sql = "SELECT $distinct " . self::quoteName($field);
          }
 
          // FROM table list
@@ -898,6 +907,9 @@ class DBmysqlIterator  implements Iterator {
    private function analyseCrit ($crit, $bool="AND") {
 
       if (!is_array($crit)) {
+//          if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
+//             trigger_error("Deprecated usage of SQL in DB/request (criteria)", E_USER_DEPRECATED);
+//          }
          return $crit;
       }
       $ret = "";
