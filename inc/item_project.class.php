@@ -74,10 +74,9 @@ class Item_Project extends CommonDBRelation{
    function prepareInputForAdd($input) {
 
       // Avoid duplicate entry
-      $restrict = " `projects_id` = '".$input['projects_id']."'
-                   AND `itemtype` = '".$input['itemtype']."'
-                   AND `items_id` = '".$input['items_id']."'";
-      if (countElementsInTable($this->getTable(), $restrict) > 0) {
+      if (countElementsInTable($this->getTable(), ['projects_id' => $input['projects_id'],
+                   'itemtype' => $input['itemtype'],
+                   'items_id' => $input['items_id']]) > 0) {
          return false;
       }
       return parent::prepareInputForAdd($input);

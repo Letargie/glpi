@@ -1933,10 +1933,10 @@ class CommonDBTM extends CommonGLPI {
       // Doc links to this item
       if (($this->getType() > 0)
           && countElementsInTable(array('glpi_documents_items', 'glpi_documents'),
-                                  "`glpi_documents_items`.`items_id`='$ID'
-                                   AND `glpi_documents_items`.`itemtype`=".$this->getType()."
-                                   AND `glpi_documents_items`.`documents_id`=`glpi_documents`.`id`
-                                   AND `glpi_documents`.`entities_id` NOT IN $entities") > '0') {
+                                  ['glpi_documents_items'.'items_id'=> $ID,
+                                   'glpi_documents_items'.'itemtype'=> $this->getType(),
+                                   'glpi_documents_items'.'documents_id'=>'glpi_documents'.'id'
+                                   'not' => ['glpi_documents'.'entities_id' => $entities]]) > '0') {
          return false;
       }
       // TODO : do we need to check all relations in $RELATION["_virtual_device"] for this item
