@@ -73,10 +73,9 @@ class Change_Item extends CommonDBRelation{
       }
 
       // Avoid duplicate entry
-      $restrict = "`changes_id` = '".$input['changes_id']."'
-                   AND `itemtype` = '".$input['itemtype']."'
-                   AND `items_id` = '".$input['items_id']."'";
-      if (countElementsInTable($this->getTable(),$restrict)>0) {
+      if (countElementsInTable($this->getTable(),['changes_id' => $input['changes_id'],
+                                                  'itemtype' => $input['itemtype'],
+                                                  'items_id' => $input['items_id'])>0) {
          return false;
       }
       return parent::prepareInputForAdd($input);
@@ -85,9 +84,9 @@ class Change_Item extends CommonDBRelation{
 
    static function countForItem(CommonDBTM $item) {
 
-      $restrict = "`glpi_changes_items`.`changes_id` = `glpi_changes`.`id`
-                   AND `glpi_changes_items`.`items_id` = '".$item->getField('id')."'
-                   AND `glpi_changes_items`.`itemtype` = '".$item->getType()."'".
+      $restrict = ['glpi_changes_items'.'changes_id' => 'glpi_changes'.'id',
+                   'glpi_changes_items'.'items_id' => $item->getField('id'),
+                   'glpi_changes_items'.'itemtype' => $item->getType(),
                    getEntitiesRestrictRequest(" AND ", "glpi_changes", '', '', true);
 
       $nb = countElementsInTable(array('glpi_changes_items', 'glpi_changes'), $restrict);
